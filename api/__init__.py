@@ -30,6 +30,8 @@ from api.resources.RRes.rclientpc import RClientpc
 from api.resources.RRes.rblock import RBlock
 from api.models.workers import MWorker, MOrgName, MSubdivision, MToken, MWorkerConf
 from api.models.clients import MClients, MContacts, MBlockHistory, MClientPC
+from api.models.calls import MCall,MRequestTime, MOtherRequestTime
+from api.resources.RRes.rcalls import RCall
 
 api.add_resource(Ind, '/')
 api.add_resource(RWorkers, '/workers')
@@ -40,6 +42,7 @@ api.add_resource(RClients, '/clients')
 api.add_resource(RContact, '/contacts')
 api.add_resource(RClientpc, '/clientpc')
 api.add_resource(RBlock, '/block')
+api.add_resource(RCall, '/calls')
 
 
 

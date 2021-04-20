@@ -18,6 +18,7 @@ class MWorker(db.Model):
     id_subversion = db.Column(db.Integer(), db.ForeignKey('subversion.id'))
     id_token = db.relationship('MToken', backref='workers_id', lazy='dynamic')
     id_workerconf = db.relationship('MWorkerConf', backref='workerconf_id', lazy='dynamic')
+    id_call = db.relationship('MCall', backref='call_id', lazy='dynamic')
 
     def __repr__(self):
         return self.id

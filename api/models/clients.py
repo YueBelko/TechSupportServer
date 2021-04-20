@@ -2,6 +2,8 @@
 from api import db
 from datetime import datetime
 from sqlalchemy.sql import func
+from api.models.calls import MCall
+
 class MClients(db.Model):
     __tablename__ = 'clients'
     id = db.Column(db.Integer(), primary_key=True)
@@ -18,6 +20,8 @@ class MClients(db.Model):
     id_contacts = db.relationship('MContacts', backref='id_contacts', lazy='dynamic')
     id_block_history = db.relationship('MContacts', backref='id_block_history', lazy='dynamic')
     id_client_pc = db.relationship('MClientPC', backref='id_client_pc', lazy='dynamic')
+    id_client_call = db.relationship('MCall', backref='id_client_call', lazy='dynamic')
+
 
     def __repr__(self):
         return self.id
@@ -32,6 +36,8 @@ class MContacts(db.Model):
     phone = db.Column(db.String())
     email = db.Column(db.String())
     remove = db.Column(db.Boolean(),default=False)
+    id_client_call = db.relationship('MCall', backref='id_contact_call', lazy='dynamic')
+
 
     def __repr__(self):
         return self.id
