@@ -5,6 +5,7 @@ from flask import Flask, request, jsonify
 from api.models.workers import MWorker, MWorkerConf, MToken, MSubdivision, MOrgName
 from api.models.clients import MClients, MContacts, MClientPC, MBlockHistory
 from api.models.calls import MCall
+from pprint import pprint
 import datetime
 
 parser = reqparse.RequestParser()
@@ -12,9 +13,7 @@ parser = reqparse.RequestParser()
 
 class RCall(Resource):
     def get(self):
-        calls = MCall.query.join(MWorker).join(MOrgName).filter(MWorker.id_org_name==6).all()
-        print(len(calls))
-        return {'Status': 'OK'}, 201
+       return {'Status': 'OK'}, 201
 
     def post(self):
         parser.add_argument('action')
@@ -26,22 +25,43 @@ class RCall(Resource):
             tok = MToken.query.filter(MToken.token == args1['token']).one()
             wor = MWorker.query.filter(MWorker.id == tok.worker_id).one()
             if wor.admin:
-                calls = MCall.query.join(MWorker).join(MOrgName).join(MClients).filter(MWorker.id_org_name==wor.id_org_name,MCall.remove==False).all()
+                calls = db.session.query(MCall.id,
+                                         MCall.id_clients,
+                                         MCall.id_worker,
+                                         MCall.time_in,
+                                         MCall.time_out,
+                                         MCall.reason_calls,
+                                         MCall.id_project,
+                                         MCall.id_clients_contact,
+                                         MCall.call_ended,
+                                         MCall.remove,
+                                         MWorker.fio.label('worker_fio'),
+                                         MWorker.id.label('worker_id'),
+                                         MClients.name.label('client_name'),
+                                         MClients.unp.label('client_unp'),
+                                         MContacts.id.label('contact_id'),
+                                         MContacts.fio.label('contact_fio')) \
+                    .join(MWorker, MWorker.id == MCall.id_worker) \
+                    .join(MOrgName, MWorker.id_org_name == MOrgName.id) \
+                    .join(MClients, MCall.id_clients == MClients.id) \
+                    .join(MContacts, MClients.id == MContacts.id_clients) \
+                    .filter(MWorker.id_org_name == wor.id_org_name) \
+                    .all()
             calls_list = []
             for c in calls:
                 d = {}
                 d['id'] = c.id
-                d['id_clients'] = c.id_client_call.id
-                d['id_clients_name'] = c.id_client_call.name
-                d['id_worker'] = c.call_id.id
-                d['id_worker_name'] = c.call_id.fio
+                d['id_clients'] = c.id_clients
+                d['id_clients_name'] = c.client_name + ' ' + c.client_unp
+                d['id_worker'] = c.worker_id
+                d['id_worker_name'] = c.worker_fio
                 d['time_in'] = str(c.time_in)
                 d['time_out'] = str(c.time_out)
                 d['time'] = str(c.time_out - c.time_in)
                 d['reason_calls'] = c.reason_calls
                 d['id_project'] = c.id_project
-                d['id_contacts_call'] = c.id_contact_call.id
-                d['id_contacts_call_name'] = c.id_contact_call.fio
+                d['id_contacts_call'] = c.contact_id
+                d['id_contacts_call_name'] = c.contact_fio
                 d['call_ended'] = str(c.call_ended)
                 calls_list.append(d)
             return calls_list

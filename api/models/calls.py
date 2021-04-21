@@ -7,15 +7,15 @@ from sqlalchemy.sql import func
 class MCall(db.Model):
     __tablename__ = 'calls'
     id = db.Column(db.Integer(), primary_key=True)
-    id_clients = db.Column(db.Integer(), db.ForeignKey('clients.id'))
+    id_clients = db.Column(db.Integer())
     id_worker = db.Column(db.Integer(), db.ForeignKey('worker.id'))
     time_in = db.Column(db.DateTime(), default=func.now())
-    time_out = db.Column(db.DateTime())
+    time_out = db.Column(db.DateTime(), default=func.now())
     reason_calls = db.Column(db.Text())
     id_project = db.Column(db.Integer())
-    id_clients_contact = db.Column(db.Integer(), db.ForeignKey('contacts.id'))
+    id_clients_contact = db.Column(db.Integer())
     call_ended = db.Column(db.Boolean(), default=False)
-    remove = db.Column(db.Boolean(),)
+    remove = db.Column(db.Boolean(), default=False)
     def __repr__(self):
         return self.id
 
