@@ -29,6 +29,11 @@ class RWorkers(Resource):
             login = normal(args1['login'])
             org = MOrgName.query.filter_by(code=code).first()
             wor = MWorker.query.filter_by(login=login).first()
+            print(args1['login'])
+            print(args1['password'])
+            print(args1['password'])
+            print(args1['info'])
+            print(args1['org'])
             if hasattr(org, 'code') and hasattr(wor, 'login') and hasattr(wor, 'password'):
 
                 if wor.login == login and wor.password == args1['password'] and org.id == wor.id_org_name:

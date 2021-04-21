@@ -25,28 +25,39 @@ class RCall(Resource):
             tok = MToken.query.filter(MToken.token == args1['token']).one()
             wor = MWorker.query.filter(MWorker.id == tok.worker_id).one()
             if wor.admin:
-                calls = db.session.query(MCall.id,
-                                         MCall.id_clients,
-                                         MCall.id_worker,
-                                         MCall.time_in,
-                                         MCall.time_out,
-                                         MCall.reason_calls,
-                                         MCall.id_project,
-                                         MCall.id_clients_contact,
-                                         MCall.call_ended,
-                                         MCall.remove,
-                                         MWorker.fio.label('worker_fio'),
-                                         MWorker.id.label('worker_id'),
-                                         MClients.name.label('client_name'),
-                                         MClients.unp.label('client_unp'),
-                                         MContacts.id.label('contact_id'),
-                                         MContacts.fio.label('contact_fio')) \
-                    .join(MWorker, MWorker.id == MCall.id_worker) \
-                    .join(MOrgName, MWorker.id_org_name == MOrgName.id) \
-                    .join(MClients, MCall.id_clients == MClients.id) \
-                    .join(MContacts, MClients.id == MContacts.id_clients) \
-                    .filter(MWorker.id_org_name == wor.id_org_name) \
-                    .all()
+                calls = db.session.execute('SELECT calls.*,	'
+                                           'contacts.fio AS contact_fio, '
+                                           'contacts.id AS contact_id, '
+                                           'worker.id AS worker_id, '
+                                           'worker.fio AS worker_fio, '
+                                           'COALESCE(clients.unp,\'\''') AS client_unp, '
+                                           'clients.id AS client_id, '
+                                           'COALESCE(clients.name,\'\''') AS client_name '
+                                           'FROM'
+                                           ' calls '
+                                           'LEFT JOIN worker ON calls.id_worker = worker.id '
+                                           'LEFT JOIN clients ON calls.id_clients = clients.id '
+                                           'LEFT JOIN contacts ON calls.id_clients_contact = contacts.id '
+                                           'WHERE '
+                                           'NOT calls.remove AND '
+                                           'worker.id_org_name = :val', {'val': wor.id_org_name}).all()
+            else:
+                calls = db.session.execute('SELECT calls.*,	'
+                                           'contacts.fio AS contact_fio, '
+                                           'contacts.id AS contact_id, '
+                                           'worker.id AS worker_id, '
+                                           'worker.fio AS worker_fio, '
+                                           'COALESCE(clients.unp,\'\''') AS client_unp, '
+                                           'clients.id AS client_id, '
+                                           'COALESCE(clients.name,\'\''') AS client_name '
+                                           'FROM'
+                                           ' calls '
+                                           'LEFT JOIN worker ON calls.id_worker = worker.id '
+                                           'LEFT JOIN clients ON calls.id_clients = clients.id '
+                                           'LEFT JOIN contacts ON calls.id_clients_contact = contacts.id '
+                                           'WHERE '
+                                           'NOT calls.remove AND '
+                                           'calls.id_worker = :val', {'val':wor.id}).all()
             calls_list = []
             for c in calls:
                 d = {}
@@ -64,47 +75,50 @@ class RCall(Resource):
                 d['id_contacts_call_name'] = c.contact_fio
                 d['call_ended'] = str(c.call_ended)
                 calls_list.append(d)
+
             return calls_list
             #return []
         elif args['action'] == 'add_call':
             parser.add_argument('token')
-            parser.add_argument('id_clients')
-            parser.add_argument('name')
-            parser.add_argument('rdesk_soft')
-            parser.add_argument('rdesk_id')
             args1 = parser.parse_args()
             tok = MToken.query.filter_by(token=args1['token']).first()
             wor = MWorker.query.filter_by(id=tok.worker_id).one()
-            print(args1['name'])
             #clientpc = MClientPC.query.filter(MClientPC.name == args1['name'])
             #if hasattr(clientpc, 'name'):
             #    return {'status': 'false', 'text': '102'}
 
-            clientpc_add = MClientPC(id_clients=args1['id_clients'],
-                                  name=args1['name'],
-                                  rdesk_soft=args1['rdesk_soft'],
-                                  rdesk_id=args1['rdesk_id'])
-            db.session.add(clientpc_add)
+            calls_add = MCall(id_worker=wor.id)
+            db.session.add(calls_add)
             db.session.commit()
-            return {'status': 'true', 'text': 'clientpc added'}
+            return {'status': 'true', 'text': calls_add.id}
         elif args['action'] == 'edit_call':
             parser.add_argument('token')
-            parser.add_argument('name')
-            parser.add_argument('rdesk_soft')
-            parser.add_argument('rdesk_id')
             parser.add_argument('id')
+            parser.add_argument('id_clients')
+            parser.add_argument('time_in')
+            parser.add_argument('time_out')
+            parser.add_argument('reason_calls')
+            parser.add_argument('id_project')
+            parser.add_argument('id_clients_contact')
+            parser.add_argument('call_ended')
             args1 = parser.parse_args()
             tok = MToken.query.filter_by(token=args1['token']).first()
             wor = MWorker.query.filter_by(id=tok.worker_id).one()
-            clientpc = MClientPC.query.filter_by(id=args1['id']).first()
-
-            if hasattr(clientpc, 'name'):
-                clientpc.name = args1['name']
-                clientpc.rdesk_soft = args1['rdesk_soft'],
-                clientpc.rdesk_id = args1['rdesk_id'],
-                db.session.add(clientpc)
+            call = MCall.query.filter_by(id=args1['id']).first()
+            if hasattr(call, 'id'):
+                call.id_clients = args1['id_clients']
+                call.time_in = args1['time_in']
+                call.time_out = args1['time_out']
+                call.reason_calls = args1['reason_calls']
+                call.id_project = args1['id_project']
+                call.id_clients_contact = args1['id_clients_contact']
+                if args1['call_ended'] == 'True':
+                    call.call_ended = True
+                else:
+                    call.call_ended = False
+                db.session.add(call)
                 db.session.commit()
-                return {'status': 'true', 'text': 'clientpc edited '}
+                return {'status': 'true', 'text': 'call edited '}
             else:
                 return {'status': 'error', 'text':'100'}
         elif args['action'] == 'delete_call':
@@ -113,11 +127,10 @@ class RCall(Resource):
             args1 = parser.parse_args()
             tok = MToken.query.filter_by(token=args1['token']).first()
             wor = MWorker.query.filter_by(id=tok.worker_id).one()
-            clientpc = MClientPC.query.filter(MClientPC.id == args1['id']).first()
-            print(clientpc.id)
-            if hasattr(clientpc, 'id'):
-                clientpc.remove = True
-                db.session.add(clientpc)
+            calls = MCall.query.filter(MCall.id == args1['id']).first()
+            if hasattr(calls, 'id'):
+                calls.remove = True
+                db.session.add(calls)
                 db.session.commit()
                 return {'status': 'true', 'text': 'clientpc removed '}
             else:
@@ -125,7 +138,7 @@ class RCall(Resource):
 
         elif args['action'] == 'get_reason':
             reason_list = []
-            reason = db.session.query(MCall.reason_calls).group_by(MCall.reason_calls).all()
+            reason = db.session.query(MCall.reason_calls).group_by(MCall.reason_calls)
             for r in reason:
                 d = {}
                 d['reason_calls'] = r.reason_calls
