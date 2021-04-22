@@ -137,8 +137,13 @@ class RCall(Resource):
                 return {'status': 'error', 'text':'100'}
 
         elif args['action'] == 'get_reason':
+            parser.add_argument('token')
+            args1 = parser.parse_args()
+            tok = MToken.query.filter(MToken.token == args1['token']).one()
+            wor = MWorker.query.filter(MWorker.id == tok.worker_id).one()
+            orgname = MOrgName.query.filter(MOrgName.id == wor.id_org_name).one()
             reason_list = []
-            reason = db.session.query(MCall.reason_calls).group_by(MCall.reason_calls)
+            reason = db.session.query(MCall.reason_calls).join(MClients, MClients.id == MCall.id_clients).filter(MClients.orgname == orgname.id).group_by(MCall.reason_calls)
             for r in reason:
                 d = {}
                 d['reason_calls'] = r.reason_calls

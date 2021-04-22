@@ -56,8 +56,6 @@ class RSubversion(Resource):
             if hasattr(tok,'id') and hasattr(tok, 'worker_id'):
                 wor1 = MWorker.query.get(tok.worker_id)
                 sub_t = MSubdivision.query.filter_by(name=args1['name'], org_name=wor1.id_org_name).first()
-                if hasattr(sub_t, 'name'):
-                    return {'status': 'false', 'text': '104'}
                 if tok.workers_id.admin:
                     t = MSubdivision.query.get(args1['id'])
                     if hasattr(t, 'id'):
