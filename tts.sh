@@ -9,3 +9,6 @@ export FLASK_DEBUG=1
 # flask db migrate
 # flask db upgrade
 nohup flask run --host=0.0.0.0 > log.txt > /dev/null 2>&1 &
+
+# cp tts.sh ../tts.sh
+# chmod u+x tts.sh
