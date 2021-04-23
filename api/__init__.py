@@ -32,6 +32,8 @@ from api.models.workers import MWorker, MOrgName, MSubdivision, MToken, MWorkerC
 from api.models.clients import MClients, MContacts, MBlockHistory, MClientPC
 from api.models.calls import MCall,MRequestTime, MOtherRequestTime
 from api.resources.RRes.rcalls import RCall
+from api.models.projects import MProject, MProjectInfo, MProjectRequest, MRequestStatus, MChangeInTheProject
+from api.resources.RRes.rproject import RProject
 
 api.add_resource(Ind, '/')
 api.add_resource(RWorkers, '/workers')
@@ -43,6 +45,9 @@ api.add_resource(RContact, '/contacts')
 api.add_resource(RClientpc, '/clientpc')
 api.add_resource(RBlock, '/block')
 api.add_resource(RCall, '/calls')
+api.add_resource(RProject, '/project')
+
+
 
 
 

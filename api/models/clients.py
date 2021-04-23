@@ -20,6 +20,7 @@ class MClients(db.Model):
     id_contacts = db.relationship('MContacts', backref='id_contacts', lazy='dynamic')
     id_block_history = db.relationship('MContacts', backref='id_block_history', lazy='dynamic')
     id_client_pc = db.relationship('MClientPC', backref='id_client_pc', lazy='dynamic')
+    id_projectinfo = db.relationship('MProjectInfo', backref='id_projectinfo', lazy='dynamic')
 
 
     def __repr__(self):
