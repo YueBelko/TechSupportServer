@@ -66,6 +66,7 @@ class MRequestStatus(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     status = db.Column(db.String(), default='New')
     filter = db.Column(db.Integer(), default='0')
+    id_orgname = db.Column(db.Integer(), db.ForeignKey('org_name.id'))
     remove_in_report = db.Column(db.Boolean(), default=False)
     remove = db.Column(db.Boolean(), default=False)
 
@@ -73,7 +74,7 @@ class MRequestStatus(db.Model):
         return self.id
 
 
-class ProjectWorkers(db.Model):
+class MProjectWorkers(db.Model):
     __tablename__ = 'project_workers'
     id = db.Column(db.Integer(), primary_key=True)
     id_project = db.Column(db.Integer(), db.ForeignKey('projects.id'))
@@ -84,7 +85,7 @@ class ProjectWorkers(db.Model):
         return self.id
 
 
-class ProjectDoc(db.Model):
+class MProjectDoc(db.Model):
     __tablename__ = 'project_doc'
     id = db.Column(db.Integer(), primary_key=True)
     id_project = db.Column(db.Integer(), db.ForeignKey('projects.id'))
@@ -96,7 +97,7 @@ class ProjectDoc(db.Model):
         return self.id
 
 
-class ProjectQuestions(db.Model):
+class MProjectQuestions(db.Model):
     __tablename__ = 'project_questions'
     id = db.Column(db.Integer(), primary_key=True)
     id_project = db.Column(db.Integer(), db.ForeignKey('projects.id'))
