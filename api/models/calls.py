@@ -16,6 +16,7 @@ class MCall(db.Model):
     id_clients_contact = db.Column(db.Integer(), default = 0)
     call_ended = db.Column(db.Boolean(), default=False)
     remove = db.Column(db.Boolean(), default=False)
+
     def __repr__(self):
         return self.id
 
@@ -33,6 +34,7 @@ class MRequestTime(db.Model):
     def __repr__(self):
         return self.id
 
+
 class MOtherRequestTime(db.Model):
     __tablename__ = 'otherrequesttime'
     id = db.Column(db.Integer(), primary_key=True)
@@ -45,3 +47,4 @@ class MOtherRequestTime(db.Model):
 
     def __repr__(self):
         return self.id
+
