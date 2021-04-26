@@ -13,7 +13,7 @@ class MProject(db.Model):
     status = db.Column(db.Integer(), db.ForeignKey('request_status.id'))
     remove = db.Column(db.Boolean(), default=False)
     id_changeintheproject = db.relationship('MChangeInTheProject', backref='id_changeintheproject', lazy='dynamic')
-    id_projectinfo = db.relationship('MProjectInfo', backref='id_projectinfo', lazy='dynamic')
+    id_projectinfo = db.relationship('MProjectInfo', backref='id_project_projectinfo', lazy='dynamic')
 
     def __repr__(self):
         return self.id
