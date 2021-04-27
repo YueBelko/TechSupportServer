@@ -95,7 +95,7 @@ class RClients(Resource):
                 db.session.commit()
                 return {'status': 'true', 'text': 'client edited '}
             else:
-                return {'status': 'error', 'text':'100'}
+                return {'status': 'false', 'text':'100'}
         elif args['action'] == 'delete_clients':
             parser.add_argument('token')
             parser.add_argument('id')

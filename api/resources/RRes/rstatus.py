@@ -27,7 +27,8 @@ class RStatusRequest(Resource):
             wor = MWorker.query.filter(MWorker.id == tok.worker_id).one()
             orgname = MOrgName.query.filter(MOrgName.id == wor.id_org_name).one()
             status_list = []
-            status = db.session.query(MRequestStatus).filter(MRequestStatus.id_orgname == orgname.id)
+            status = db.session.query(MRequestStatus).filter(MRequestStatus.id_orgname == orgname.id)\
+                .filter(MRequestStatus.remove == False)
             for r in status:
                 d = {}
                 d['status'] = r.status
@@ -61,6 +62,44 @@ class RStatusRequest(Resource):
             db.session.commit()
             return {'status': 'true', 'text': status_add.id}
 
-        # :todo редактирование написать
+        elif args['action'] == 'edit_status':
+            parser.add_argument('id')
+            parser.add_argument('token')
+            parser.add_argument('status')
+            parser.add_argument('filter')
+            parser.add_argument('remove_in_report')
+            args1 = parser.parse_args()
+            tok = MToken.query.filter(MToken.token == args1['token']).one()
+            wor = MWorker.query.filter(MWorker.id == tok.worker_id).one()
+            orgname = MOrgName.query.filter(MOrgName.id == wor.id_org_name).one()
+            if args1['remove_in_report']:
+                remove_in_report=True
+            else:
+                remove_in_report=False
+            status = MRequestStatus.query.filter_by(id=args1['id']).first()
+            if not hasattr(status,'id'):
+                return {'status': 'false', 'text': '102'}
+            status.status = args1['status']
+            status.filter = args1['filter']
+            status.remove_in_report = remove_in_report
+            db.session.add(status)
+            db.session.commit()
+            return {'status': 'true', 'text':status.id}
 
-        return {'status': 'ERROR', 'text': '102'}
+        elif args['action'] == 'delete_status':
+            parser.add_argument('token')
+            parser.add_argument('id')
+            args1 = parser.parse_args()
+            tok = MToken.query.filter(MToken.token == args1['token']).one()
+            wor = MWorker.query.filter(MWorker.id == tok.worker_id).one()
+            orgname = MOrgName.query.filter(MOrgName.id == wor.id_org_name).one()
+            projectstatus = MRequestStatus.query.filter(MClients.orgname == orgname.id)\
+                .filter(MRequestStatus.id == args1['id']).one()
+            if not hasattr(projectstatus, 'id'):
+                return {'status': 'false', 'text': '100'}
+            projectstatus.remove = True
+            db.session.add(projectstatus)
+            db.session.commit()
+            return {'status': 'true', 'text': 'project status removed'}
+
+        return {'status': 'false', 'text': '102'}
