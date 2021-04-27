@@ -23,12 +23,75 @@ class RProject(Resource):
 
         if args['action'] == 'get_project':
             parser.add_argument('token')
-            parser.add_argument('id_clients')
             args1 = parser.parse_args()
+            tok = MToken.query.filter(MToken.token == args1['token']).one()
+            wor = MWorker.query.filter(MWorker.id == tok.worker_id).one()
+            orgname = MOrgName.query.filter(MOrgName.id == wor.id_org_name).one()
+            project = db.session.execute('SELECT '
+                                         'projects.*, '
+                                         'request_status.status AS status_text, '
+                                         'org_name.name AS org_name'
+                                         ' FROM '
+                                         'projects '
+                                         'LEFT JOIN org_name ON projects.id_orgname = org_name.id '
+                                         'LEFT JOIN request_status ON projects.status = request_status.id '
+                                         ' WHERE '
+                                         'NOT projects.remove AND '
+                                         'projects.id_orgname = :val', {'val': wor.id_org_name}).all()
+            project_list = []
+            for c in project:
+                d = {}
+                d['id'] = c.id
+                d['id_orgname'] = c.id_orgname
+                d['name'] = c.name
+                d['status'] = c.status
+                d['status_text'] = c.status_text
+                d['org_name'] = c.org_name
+                project_list.append(d)
 
-            return {'status':'ok'}
+            return project_list
 ### ADD
+        elif args['action'] == 'add_project':
+            parser.add_argument('token')
+            parser.add_argument('name')
+            parser.add_argument('status')
+            args1 = parser.parse_args()
+            tok = MToken.query.filter_by(token=args1['token']).first()
+            wor = MWorker.query.filter_by(id=tok.worker_id).one()
+            # clientpc = MClientPC.query.filter(MClientPC.name == args1['name'])
+            # if hasattr(clientpc, 'name'):
+            #    return {'status': 'false', 'text': '102'}
+
+            project_add = MProject(id_orgname=wor.id_org_name,
+                                   name = args1['name'],
+                                   status = args1['status'])
+
+            db.session.add(project_add)
+            db.session.commit()
+            return {'status': 'true', 'text': project_add.id}
 ### EDIT
+        elif args['action'] == 'edit_project':
+            parser.add_argument('token')
+            parser.add_argument('name')
+            parser.add_argument('status')
+            parser.add_argument('id')
+            args1 = parser.parse_args()
+            tok = MToken.query.filter_by(token=args1['token']).first()
+            wor = MWorker.query.filter_by(id=tok.worker_id).one()
+            # clientpc = MClientPC.query.filter(MClientPC.name == args1['name'])
+            # if hasattr(clientpc, 'name'):
+            #    return {'status': 'false', 'text': '102'}
+
+            project_edit = MProject.query.filter_by(id=args1['id']).first()
+            if hasattr(project_edit, 'id'):
+                project_edit.name = args1['name']
+                project_edit.status = args1['status']
+                db.session.add(project_edit)
+                db.session.commit()
+                return {'status': 'true', 'text': project_edit.id}
+            else:
+                return {'status': 'false', 'text': '105'}
+            return {'status': 'false', 'text': '101'}
 ### DELETE
         elif args['action'] == 'del_project':
             parser.add_argument('token')
@@ -39,11 +102,11 @@ class RProject(Resource):
             orgname = MOrgName.query.filter(MOrgName.id == wor.id_org_name).one()
             project = MProject.query.filter(MClients.orgname == orgname.id).filter(MProject.id == args1['id']).one()
             if not hasattr(project, 'id'):
-                return {'status': 'error', 'text': '100'}
+                return {'status': 'false', 'text': '100'}
             project.remove = True
             db.session.add(project)
             db.session.commit()
-            return {'status': 'ok', 'text': 'project removed'}
+            return {'status': 'true', 'text': 'project removed'}
         elif args['action'] == 'del_project_doc':
             parser.add_argument('token')
             parser.add_argument('id')
