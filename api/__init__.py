@@ -35,6 +35,7 @@ from api.resources.RRes.rcalls import RCall
 from api.models.projects import MProject, MProjectInfo, MProjectRequest, MRequestStatus, MChangeInTheProject
 from api.resources.RRes.rproject import RProject
 from api.resources.RRes.rstatus import RStatusRequest
+from api.resources.RRes.rprojectworkers import RProjectWorkers
 
 api.add_resource(Ind, '/')
 api.add_resource(RWorkers, '/workers')
@@ -48,6 +49,7 @@ api.add_resource(RBlock, '/block')
 api.add_resource(RCall, '/calls')
 api.add_resource(RProject, '/project')
 api.add_resource(RStatusRequest, '/statusrequest')
+api.add_resource(RProjectWorkers, '/projectworkers')
 
 
 

@@ -167,22 +167,8 @@ class RProject(Resource):
             db.session.add(projectrequest)
             db.session.commit()
             return {'status': 'ok', 'text': 'project request removed'}
-        elif args['action'] == 'del_project_workers':
-            parser.add_argument('token')
-            parser.add_argument('id')
-            args1 = parser.parse_args()
-            tok = MToken.query.filter(MToken.token == args1['token']).one()
-            wor = MWorker.query.filter(MWorker.id == tok.worker_id).one()
-            orgname = MOrgName.query.filter(MOrgName.id == wor.id_org_name).one()
-            projectworkers = MProjectWorkers.query.filter(MClients.orgname == orgname.id)\
-                .filter(MProjectWorkers.id == args1['id']).one()
-            if not hasattr(projectworkers, 'id'):
-                return {'status': 'error', 'text': '100'}
-            projectworkers.remove = True
-            db.session.add(projectworkers)
-            db.session.commit()
-            return {'status': 'ok', 'text': 'project workers removed'}
-        elif args['action'] == 'del_project_workers':
+
+        elif args['action'] == 'del_project_questions':
             parser.add_argument('token')
             parser.add_argument('id')
             args1 = parser.parse_args()
