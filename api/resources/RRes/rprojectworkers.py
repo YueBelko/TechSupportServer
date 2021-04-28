@@ -145,7 +145,8 @@ class RProjectWorkers(Resource):
             # if hasattr(clientpc, 'name'):
             #    return {'status': 'false', 'text': '102'}
             uniqu = MProjectWorkers.query.filter(MProjectWorkers.id_project == args1['id_project']) \
-                .filter(MProjectWorkers.id_workers == args1['id_workers']).first()
+                .filter(MProjectWorkers.id_workers == args1['id_workers']).filter(MProjectWorkers.id != args1['id'])\
+                .first()
             if hasattr(uniqu, 'id'):
                 return {'status': 'false', 'text': '112'}
 
