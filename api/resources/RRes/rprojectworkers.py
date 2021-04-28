@@ -118,12 +118,20 @@ class RProjectWorkers(Resource):
             uniqu = MProjectWorkers.query.filter(MProjectWorkers.id_project == args1['id_project'])\
                 .filter(MProjectWorkers.id_workers == args1['id_workers']).first()
             if hasattr(uniqu,'id'):
-                return {'status': 'false', 'text': '112'}
-            projectworkers_add = MProjectWorkers(id_workers=args1['id_workers'],
-                                                 id_project= args1['id_project'])
-            db.session.add(projectworkers_add)
-            db.session.commit()
-            return {'status':'true', 'text':projectworkers_add.id}
+                if hasattr(uniqu, 'id'):
+                    if uniqu.remove == True:
+                        uniqu.remove = False
+                        db.session.add(uniqu)
+                        db.session.commit()
+                        return {'status': 'true', 'text': uniqu.id}
+                    else:
+                        return {'status': 'false', 'text': uniqu.id}
+            else:
+                projectworkers_add = MProjectWorkers(id_workers=args1['id_workers'],
+                                                     id_project= args1['id_project'])
+                db.session.add(projectworkers_add)
+                db.session.commit()
+                return {'status':'true', 'text':projectworkers_add.id}
 ### EDIT DATA
         elif args['action'] == 'edit_projectworkers':
             parser.add_argument('token')
@@ -161,12 +169,13 @@ class RProjectWorkers(Resource):
             wor = MWorker.query.filter(MWorker.id == tok.worker_id).one()
             orgname = MOrgName.query.filter(MOrgName.id == wor.id_org_name).one()
             projectworkers = MProjectWorkers.query.filter(MProjectWorkers.id == args1['id']).one()
-            if not hasattr(projectworkers, 'id'):
-                return {'status': 'false', 'text': '100'}
-
-            db.session.delete(projectworkers)
-            db.session.commit()
-            return {'status': 'true', 'text': 'project workers removed'}
+            if hasattr(projectworkers, 'id'):
+                projectworkers.remove = True
+                db.session.add(projectworkers)
+                db.session.commit()
+                return {'status': 'true', 'text': 'project workers removed'}
+            else:
+                return {'status': 'false', 'text': 'not found project'}
 
 ### END
         return {'status':'false', 'text':'102'}
