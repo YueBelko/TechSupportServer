@@ -112,14 +112,18 @@ class RProjectWorkers(Resource):
         elif args['action'] == 'add_projectworkers':
             parser.add_argument('token')
             parser.add_argument('id_project')
+            parser.add_argument('id_workers')
             args1 = parser.parse_args()
             tok = MToken.query.filter_by(token=args1['token']).first()
-            wor = MWorker.query.filter_by(id=tok.worker_id).one()
-            projectworkers_add = MProjectWorkers(id_projectworkers=wor.id,
+            uniqu = MProjectWorkers.query.filter(MProjectWorkers.id_project == args1['id_project'])\
+                .filter(MProjectWorkers.id_workers == args1['id_workers']).first()
+            if hasattr(uniqu,'id'):
+                return {'status': 'false', 'text': '112'}
+            projectworkers_add = MProjectWorkers(id_workers=args1['id_workers'],
                                                  id_project= args1['id_project'])
             db.session.add(projectworkers_add)
             db.session.commit()
-            return {'status':'true', 'text':projectworkers_add}
+            return {'status':'true', 'text':projectworkers_add.id}
 ### EDIT DATA
         elif args['action'] == 'edit_projectworkers':
             parser.add_argument('token')
@@ -132,11 +136,15 @@ class RProjectWorkers(Resource):
             # clientpc = MClientPC.query.filter(MClientPC.name == args1['name'])
             # if hasattr(clientpc, 'name'):
             #    return {'status': 'false', 'text': '102'}
+            uniqu = MProjectWorkers.query.filter(MProjectWorkers.id_project == args1['id_project']) \
+                .filter(MProjectWorkers.id_workers == args1['id_workers']).first()
+            if hasattr(uniqu, 'id'):
+                return {'status': 'false', 'text': '112'}
 
-            projectworkers_edit = MProjectWorkers.query.filter_by(id=args1['id']).first()
+            projectworkers_edit = MProjectWorkers.query.filter_by(id=args1['id']).one()
             if hasattr(projectworkers_edit, 'id'):
-                projectworkers_edit.name = args1['id_project']
-                projectworkers_edit.status = args1['id_workers']
+                projectworkers_edit.id_project = args1['id_project']
+                projectworkers_edit.id_workers = args1['id_workers']
                 db.session.add(projectworkers_edit)
                 db.session.commit()
                 return {'status': 'true', 'text': projectworkers_edit.id}
@@ -155,8 +163,8 @@ class RProjectWorkers(Resource):
             projectworkers = MProjectWorkers.query.filter(MProjectWorkers.id == args1['id']).one()
             if not hasattr(projectworkers, 'id'):
                 return {'status': 'false', 'text': '100'}
-            projectworkers.remove = True
-            db.session.add(projectworkers)
+
+            db.session.delete(projectworkers)
             db.session.commit()
             return {'status': 'true', 'text': 'project workers removed'}
 
