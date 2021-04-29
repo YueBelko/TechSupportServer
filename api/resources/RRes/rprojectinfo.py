@@ -34,7 +34,7 @@ class RInfoProject(Resource):
                                       ' FROM '
                                       'project_info '
                                       'LEFT JOIN clients ON project_info.id_client = clients.id '
-                                      'LEFT JOIN projects ON clients.id = projects.id_orgname '
+                                      'LEFT JOIN projects ON clients.orgname = projects.id_orgname '
                                       'LEFT JOIN org_name ON clients.orgname = org_name.id'
                                       ' WHERE '
                                       'org_name.id = :val'
@@ -46,7 +46,7 @@ class RInfoProject(Resource):
                 d['id_project'] = c.id_project
                 d['id_client'] = c.id_client
                 d['info'] = c.info
-                d['date'] = c.date
+                d['date'] = str(c.date)
                 d['project_name'] = c.project_name
                 d['client_name'] = c.client_name
                 status_list.append(d)
@@ -67,7 +67,7 @@ class RInfoProject(Resource):
                                       ' FROM '
                                       'project_info '
                                       'LEFT JOIN clients ON project_info.id_client = clients.id '
-                                      'LEFT JOIN projects ON clients.id = projects.id_orgname '
+                                      'LEFT JOIN projects ON clients.orgname = projects.id_orgname '
                                       'LEFT JOIN org_name ON clients.orgname = org_name.id'
                                       ' WHERE '
                                       'id_client.id = :val'
@@ -79,7 +79,7 @@ class RInfoProject(Resource):
                 d['id_project'] = c.id_project
                 d['id_client'] = c.id_client
                 d['info'] = c.info
-                d['date'] = c.date
+                d['date'] = str(c.date)
                 d['project_name'] = c.project_name
                 d['client_name'] = c.client_name
                 status_list.append(d)
@@ -101,10 +101,10 @@ class RInfoProject(Resource):
                                       ' FROM '
                                       'project_info '
                                       'LEFT JOIN clients ON project_info.id_client = clients.id '
-                                      'LEFT JOIN projects ON clients.id = projects.id_orgname '
+                                      'LEFT JOIN projects ON clients.orgname = projects.id_orgname '
                                       'LEFT JOIN org_name ON clients.orgname = org_name.id'
                                       ' WHERE '
-                                      'id_project.id = :val'
+                                      'project_info.id_client = :val'
                                       ' AND	NOT project_info.remove', {'val': args1['id']}).all()
             status_list = []
             for c in list:
@@ -113,7 +113,7 @@ class RInfoProject(Resource):
                 d['id_project'] = c.id_project
                 d['id_client'] = c.id_client
                 d['info'] = c.info
-                d['date'] = c.date
+                d['date'] = str(c.date)
                 d['project_name'] = c.project_name
                 d['client_name'] = c.client_name
                 status_list.append(d)
