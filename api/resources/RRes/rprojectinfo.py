@@ -1,13 +1,23 @@
 # -*- coding: utf-8 -*-
-from flask_restful import Resource, reqparse
-from flask import Flask, request, jsonify
-from api.models.workers import MWorker, MWorkerConf, MToken, MSubdivision, MOrgName
-from api.models.clients import MClients, MContacts, MClientPC, MBlockHistory
+from flask_restful import Resource,\
+    reqparse
+# from flask import Flask, request, jsonify
+from api.models.workers import MWorker,\
+    MWorkerConf,\
+    MToken,\
+    MSubdivision,\
+    MOrgName
+# from api.models.clients import MClients, MContacts, MClientPC, MBlockHistory
 from api.models.projects import MProjectRequest,\
-    MProject, MRequestStatus, MProjectInfo,\
-    MChangeInTheProject, MProjectDoc, MProjectWorkers, MProjectQuestions
+    MProject,\
+    MRequestStatus,\
+    MProjectInfo,\
+    MChangeInTheProject,\
+    MProjectDoc,\
+    MProjectWorkers,\
+    MProjectQuestions
 from api import db
-import datetime
+# import datetime
 
 parser = reqparse.RequestParser()
 
@@ -190,3 +200,5 @@ class RInfoProject(Resource):
             else:
                 return {'status': 'false', 'text': '105'}
             return {'status': 'true'}
+
+        return {'status': 'false'}
